@@ -37,6 +37,11 @@ const currentBlockData = [
     },
 ];
 
-const nonce = 102;
+// const nonce = 102;
 
-console.log(dclCoin.hashBlock(previousBlockHash, currentBlockData, nonce));
+// console.log(dclCoin.hashBlock(previousBlockHash, currentBlockData, nonce));
+
+
+
+//testing proofOfWork
+console.log(dclCoin.proofOfWork(previousBlockHash, currentBlockData));
