@@ -3,7 +3,7 @@ function Blockchain() {
     this.chain = []; //shobgula block ja banabo ja mine hobe shob ekhane chain akare add hobe
     this.pendingTransactions = []; //shob transaction hold hobe, even before egula block e dhukar age
 
-    this.createNewBlock(100, '0000', '0000s');//to create the genesis block. These values could be anything
+    this.createNewBlock(100, '0000', '1111');//to create the genesis block. These values could be anything
 }
 
 //creating new block
