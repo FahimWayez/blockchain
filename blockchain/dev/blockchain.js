@@ -1,4 +1,7 @@
 const sha256 = require('sha256');
+const uuid = require('uuid').v4;
+
+
 function Blockchain() {
     this.chain = []; //shobgula block ja banabo ja mine hobe shob ekhane chain akare add hobe
     this.pendingTransactions = []; //shob transaction hold hobe, even before egula block e dhukar age
@@ -37,10 +40,18 @@ Blockchain.prototype.createNewTransaction = function (amount, sender, recipient)
         amount: amount,
         sender: sender,
         recipient: recipient,
+        transactionId: uuid().split('-').join('')
     };
 
-    this.pendingTransactions.push(newTransaction);
+    // this.pendingTransactions.push(newTransaction);
+    // return this.getLastBlock()['index'] + 1;
 
+    return newTransaction;
+}
+
+
+Blockchain.prototype.addTransactionToPendingTransactions = function (transactionObject) {
+    this.pendingTransactions.push(transactionObject);
     return this.getLastBlock()['index'] + 1;
 }
 
