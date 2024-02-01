@@ -5,6 +5,8 @@ const Blockchain = require('./blockchain');
 const uuid = require('uuid').v4;
 const nodeAddress = uuid().split('-').join('');
 
+const port = process.argv[2];
+
 const dclCoin = new Blockchain();
 
 //jodi ekta request ashe json data shoho postman theke tokhon parse kore nitesi
@@ -48,6 +50,6 @@ app.get('/mine', function (req, res) {
 
 
 // app.use('/transaction', express);
-app.listen(3000, function () {
-    console.log('Listening to port 3000...');
+app.listen(port, function () {
+    console.log(`Listening to port ${port}...`);
 })
