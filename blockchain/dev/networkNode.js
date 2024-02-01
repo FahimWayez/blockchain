@@ -70,15 +70,115 @@ app.get('/mine', function (req, res) {
     const nonce = dclCoin.proofOfWork(previousBlockHash, currentBlockData);
     const blockHash = dclCoin.hashBlock(previousBlockHash, currentBlockData, nonce);
 
-    dclCoin.createNewTransaction(6.25, "00", nodeAddress)
+    // dclCoin.createNewTransaction(6.25, "00", nodeAddress)
 
     const newBlock = dclCoin.createNewBlock(nonce, previousBlockHash, blockHash);
 
-    res.json({
-        note: "New block mined successfully",
-        block: newBlock
+    const requestPromises = [];
+    dclCoin.networkNodes.foreach(networkNodeUrl => {
+        const requestOptions = {
+            uri: networkNodeUrl + '/receive-new-block',
+            method: 'POST',
+            body: { newBlock: newBlock },
+            json: true
+        };
+
+        requestPromises.push(rp(requestOptions));
     });
+
+    //broadcasting the miner rewards to the network
+    Promise.all(requestPromises)
+        .then(data => {
+            const requestOptions = {
+                uri: dclCoin.currentNodeUrl + '/transaction/broadcast',
+                method: 'POST',
+                body: {
+                    amount: 6.5,
+                    sender: "00",
+                    recipient: nodeAddress
+                },
+                json: true
+            };
+            return rp(requestOptions);
+        })
+        .then(data => {
+            res.json({
+                note: "New block mined and broadcast successfully",
+                block: newBlock
+            });
+        });
 });
+
+
+app.post('/receive-new-block', function (req, res) {
+    const newBlock = req.body.newBlock;
+    const lastBlock = dclCoin.getLastBlock();
+    const correctHash = lastBlock.hash === newBlock.previousBlockHash;
+    const correctIndex = lastBlock['index'] + 1 === newBlock['index'];
+
+    if (correctHash && correctIndex) {
+        dclCoin.chain.push(newBlock);
+        dclCoin.pendingTransactions = [];
+        res.json({
+            note: 'New block received and accepted',
+            newBlock: newBlock
+        });
+    } else {
+        res.json({
+            note: 'New block rejected',
+            newBlock: newBlock
+        });
+    }
+});
+
+//when hit, it will register and broadcast a node to the network
+app.post('/register-and-broadcast-node', function (req, res) {
+    const newNodeUrl = req.body.networkNodeUrl;
+    if (dclCoin.networkNodes.indexOf(newNodeUrl) == -1) dclCoin.networkNodes.push(newNodeUrl);
+
+    const regNodesPromises = [];
+    dclCoin.networkNodes.forEach(networkNodeUrl => {
+        const requestOptions = {
+            uri: networkNodeUrl + '/register-node',
+            method: 'POST',
+            body: {
+                newNodeUrl: newNodeUrl
+            },
+            json: true
+        };
+
+        regNodesPromises.push(rp(requestOptions));
+    });
+
+    Promise.all(regNodesPromises)
+        .then(data => {
+            const bulkRegisterOptions = {
+                uri: newNodeUrl + '/register-nodes-bulk',
+                method: 'POST',
+                body: { allNetworkNodes: [...dclCoin.networkNodes, dclCoin.currentNodeUrl] },
+                json: true
+            };
+
+            return rp(bulkRegisterOptions);
+        })
+        .then(data => {
+            res.json({ note: 'New node registered with network successfully' });
+        });
+
+});
+
+
+//when hit, it will register a node to the network
+app.post('/register-node', function (req, res) {
+
+});
+
+
+//when hit, it will register multiple nodes at once
+app.post('/register-nodes-bulk', function (req, res) {
+
+});
+
 
 
 // app.use('/transaction', express);
