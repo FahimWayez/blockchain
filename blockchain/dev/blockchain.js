@@ -70,7 +70,6 @@ Blockchain.prototype.hashBlock = function (previousBlockHash, currentBlockData, 
 }
 
 
-
 //generating the specific nonce value
 Blockchain.prototype.proofOfWork = function (previousBlockHash, currentBlockData) {
     let nonce = 0;
