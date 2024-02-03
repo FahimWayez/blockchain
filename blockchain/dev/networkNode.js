@@ -183,6 +183,8 @@ app.post('/register-nodes-bulk', function (req, res) {
     res.json({ note: 'Bulk registration successful.' });
 });
 
+
+//when hit, it will check if the newly created networks has the updated data or not, if not, it will add
 app.get('/consensus', function (req, res) {
     const requestPromises = [];
     dclCoin.networkNodes.forEach(networkNodeUrl => {
