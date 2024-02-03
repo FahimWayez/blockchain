@@ -83,6 +83,32 @@ Blockchain.prototype.proofOfWork = function (previousBlockHash, currentBlockData
     return nonce;
 }
 
+//validating if a chain is legitimate or not
+Blockchain.prototype.chainInValid = function (blockchain) {
+
+    let validChain = true;
+
+    //iterating through every single block
+    for (let i = 0; i < blockchain.length; i++) {
+        const currentBlock = blockchain[i];
+        const previousBlock = blockchain[i - 1];
+        const blockHash = this.hashBlock(previousBlock['hash'], { transactions: currentBlock['transactions'], index: currentBlock['index'] }, currentBlock['nonce']);
+
+        if (blockHash.substring(0, 4) !== '0000') validChain = false;
+
+        if (currentBlock['previousBlockHash'] !== previousBlock['hash']) validChain = false; //chain is invalid
+    };
+
+    const genesisBlock = blockchain[0];
+    const correctNonce = genesisBlock['nonce'] === 100;
+    const correctPreviousBlockHash = genesisBlock['previousBlockHash'] === '0000';
+    const correctHash = genesisBlock['hash'] === '1111';
+    const correctTransaction = genesisBlock['transaction'].length === 0;
+
+    if (!correctNonce || !correctPreviousBlockHash || !correctHash || !correctTransaction) validChain = false;
+    return validChain;
+};
 
 
 module.exports = Blockchain;
+
