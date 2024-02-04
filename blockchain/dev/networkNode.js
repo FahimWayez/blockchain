@@ -229,6 +229,25 @@ app.get('/consensus', function (req, res) {
         });
 });
 
+//search by block hash
+app.get('/block/:blockHash', function (req, res) {
+
+});
+
+//search by transaction ID
+app.get('/transaction/:transactionId', function (req, res) {
+
+});
+
+//search by address
+app.get('/address/:address', function (req, res) {
+
+});
+
+
+
+
+
 // app.use('/transaction', express);
 app.listen(port, function () {
     console.log(`Listening to port ${port}...`);
