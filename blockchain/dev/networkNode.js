@@ -231,7 +231,11 @@ app.get('/consensus', function (req, res) {
 
 //search by block hash
 app.get('/block/:blockHash', function (req, res) {
-
+    const blockHash = req.params.blockHash;
+    const correctBlock = dclCoin.getBlock(blockHash);
+    res.json({
+        block: correctBlock
+    });
 });
 
 //search by transaction ID
