@@ -240,7 +240,13 @@ app.get('/block/:blockHash', function (req, res) {
 
 //search by transaction ID
 app.get('/transaction/:transactionId', function (req, res) {
+    const transactionId = req.params.transactionId;
+    const transactionData = dclCoin.getTransaction(transactionId);
 
+    res.json({
+        transaction: transactionData.transaction,
+        block: transactionData.block
+    });
 });
 
 //search by address
