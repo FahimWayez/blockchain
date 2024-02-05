@@ -146,20 +146,26 @@ Blockchain.prototype.getBlock = function (blockHash) {
 
 
 Blockchain.prototype.getTransaction = function (transactionId) {
-    let correctTransaction = null;
-    let correctBlock = null;
-    this.chain.forEach(block => {
-        block.transactions.forEach(transaction => {
-            if (transaction.transactionId === transactionId) {
-                correctTransaction = transaction;
-                correctBlock = block;
-            };
+    try {
+        let correctTransaction = null;
+        let correctBlock = null;
+        this.chain.forEach(block => {
+            block.transactions.forEach(transaction => {
+                if (transaction.transactionId === transactionId) {
+                    correctTransaction = transaction;
+                    correctBlock = block;
+                };
+            });
         });
-    });
 
-    return {
-        transaction: correctTransaction,
-        block: correctBlock
+        return {
+            transaction: correctTransaction,
+            block: correctBlock
+        };
+    }
+    catch (error) {
+        console.error('Error getting transaction: ', error);
+        throw new Error('Failed to get transaction');
     };
 };
 
