@@ -107,25 +107,31 @@ Blockchain.prototype.proofOfWork = function (previousBlockHash, currentBlockData
 
 //validating if a chain is legitimate or not
 Blockchain.prototype.chainIsValid = function (blockchain) {
-    let validChain = true;
+    try {
+        let validChain = true;
 
-    for (var i = 1; i < blockchain.length; i++) {
-        const currentBlock = blockchain[i];
-        const prevBlock = blockchain[i - 1];
-        const blockHash = this.hashBlock(prevBlock['hash'], { transactions: currentBlock['transactions'], index: currentBlock['index'] }, currentBlock['nonce']);
-        if (blockHash.substring(0, 4) !== '0000') validChain = false;
-        if (currentBlock['previousBlockHash'] !== prevBlock['hash']) validChain = false;
+        for (var i = 1; i < blockchain.length; i++) {
+            const currentBlock = blockchain[i];
+            const prevBlock = blockchain[i - 1];
+            const blockHash = this.hashBlock(prevBlock['hash'], { transactions: currentBlock['transactions'], index: currentBlock['index'] }, currentBlock['nonce']);
+            if (blockHash.substring(0, 4) !== '0000') validChain = false;
+            if (currentBlock['previousBlockHash'] !== prevBlock['hash']) validChain = false;
+        };
+
+        const genesisBlock = blockchain[0];
+        const correctNonce = genesisBlock['nonce'] === 100;
+        const correctPreviousBlockHash = genesisBlock['previousBlockHash'] === '0000';
+        const correctHash = genesisBlock['hash'] === '1111';
+        const correctTransactions = genesisBlock['transactions'].length === 0;
+
+        if (!correctNonce || !correctPreviousBlockHash || !correctHash || !correctTransactions) validChain = false;
+
+        return validChain;
+    }
+    catch (error) {
+        console.error('Error validating chain: ', error);
+        throw new Error('Failed to validate chain.');
     };
-
-    const genesisBlock = blockchain[0];
-    const correctNonce = genesisBlock['nonce'] === 100;
-    const correctPreviousBlockHash = genesisBlock['previousBlockHash'] === '0000';
-    const correctHash = genesisBlock['hash'] === '1111';
-    const correctTransactions = genesisBlock['transactions'].length === 0;
-
-    if (!correctNonce || !correctPreviousBlockHash || !correctHash || !correctTransactions) validChain = false;
-
-    return validChain;
 };
 
 
