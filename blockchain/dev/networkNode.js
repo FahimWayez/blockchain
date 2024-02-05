@@ -61,6 +61,10 @@ app.post('/transaction/broadcast', function (req, res) {
         Promise.all(requestPromises)
             .then(data => {
                 res.json({ note: 'Transaction created and broadcast successfully.' });
+            })
+            .catch(error => {
+                console.error('Error in promise.all:', error);
+                res.status(500).json({ error: 'Failed to broadcast.' });
             });
     }
     catch (error) {
@@ -115,11 +119,15 @@ app.get('/mine', function (req, res) {
                     note: "New block mined & broadcast successfully",
                     block: newBlock
                 });
+            })
+            .catch(error => {
+                console.error('Error in promise.all:', error);
+                res.status(500).json({ error: 'Failed to mine and broadcast.' });
             });
     }
     catch (error) {
         console.error('Error mining block: ', error);
-        res.status(500).json({ error: 'Failed to mine block' });
+        res.status(500).json({ error: 'Failed to mine block.' });
     };
 });
 
@@ -181,6 +189,10 @@ app.post('/register-and-broadcast-node', function (req, res) {
             })
             .then(data => {
                 res.json({ note: 'New node registered with network successfully.' });
+            })
+            .catch(error => {
+                console.error('Error in promise.all:', error);
+                res.status(500).json({ error: 'Failed to register and broadcast nodes.' });
             });
     }
     catch (error) {
@@ -269,6 +281,10 @@ app.get('/consensus', function (req, res) {
                         chain: dclCoin.chain
                     });
                 }
+            })
+            .catch(error => {
+                console.error('Error in promise.all:', error);
+                res.status(500).json({ error: 'Problematic chain.' });
             });
     }
     catch (error) {
