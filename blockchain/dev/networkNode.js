@@ -175,17 +175,24 @@ app.post('/register-and-broadcast-node', function (req, res) {
         .then(data => {
             res.json({ note: 'New node registered with network successfully.' });
         });
+
 });
 
 
 
 //when hit, it will register a node to the network
 app.post('/register-node', function (req, res) {
-    const newNodeUrl = req.body.newNodeUrl;
-    const nodeNotAlreadyPresent = dclCoin.networkNodes.indexOf(newNodeUrl) == -1;
-    const notCurrentNode = dclCoin.currentNodeUrl !== newNodeUrl;
-    if (nodeNotAlreadyPresent && notCurrentNode) dclCoin.networkNodes.push(newNodeUrl);
-    res.json({ note: 'New node registered successfully.' });
+    try {
+        const newNodeUrl = req.body.newNodeUrl;
+        const nodeNotAlreadyPresent = dclCoin.networkNodes.indexOf(newNodeUrl) == -1;
+        const notCurrentNode = dclCoin.currentNodeUrl !== newNodeUrl;
+        if (nodeNotAlreadyPresent && notCurrentNode) dclCoin.networkNodes.push(newNodeUrl);
+        res.json({ note: 'New node registered successfully.' });
+    }
+    catch (error) {
+        console.error('Error registering node: ', error);
+        res.status(500).json({ note: 'Failed to register node.' });
+    };
 });
 
 
