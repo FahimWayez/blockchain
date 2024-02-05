@@ -259,10 +259,6 @@ app.get('/address/:address', function (req, res) {
     });
 });
 
-
-
-
-
 // app.use('/transaction', express);
 app.listen(port, function () {
     console.log(`Listening to port ${port}...`);
