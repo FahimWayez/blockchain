@@ -255,11 +255,17 @@ app.get('/consensus', function (req, res) {
 
 //search by block hash
 app.get('/block/:blockHash', function (req, res) {
-    const blockHash = req.params.blockHash;
-    const correctBlock = dclCoin.getBlock(blockHash);
-    res.json({
-        block: correctBlock
-    });
+    try {
+        const blockHash = req.params.blockHash;
+        const correctBlock = dclCoin.getBlock(blockHash);
+        res.json({
+            block: correctBlock
+        });
+    }
+    catch (error) {
+        console.error('Error finding block with block hash: ', error);
+        res.status(500).json({ error: 'Failed to find block with block hash.' });
+    };
 });
 
 //search by transaction ID
