@@ -287,12 +287,18 @@ app.get('/transaction/:transactionId', function (req, res) {
 
 //search by address
 app.get('/address/:address', function (req, res) {
-    const address = req.params.address;
-    const addressData = dclCoin.getAddressData(address);
+    try {
+        const address = req.params.address;
+        const addressData = dclCoin.getAddressData(address);
 
-    res.json({
-        addressData: addressData
-    });
+        res.json({
+            addressData: addressData
+        });
+    }
+    catch (error) {
+        console.error('Error finding address with given address: ', error);
+        res.status(500).json({ error: 'Failed to find address with the given address' });
+    };
 });
 
 // app.use('/transaction', express);
