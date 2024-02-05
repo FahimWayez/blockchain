@@ -55,8 +55,24 @@ app.post('/transaction', function (req, res) {
 
 app.post('/transaction/broadcast', function (req, res) {
     try {
-        const newTransaction = dclCoin.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
+        const { amount, sender, recipient } = req.body;
+
+        if (!amount || isNaN(amount) || amount <= 0) {
+            throw new Error('Invalid amount. Please provide a positive numeric value.');
+        }
+
+        if (!sender || typeof sender !== 'string') {
+            throw new Error('Invalid sender. Please provide a valid sender.');
+        }
+
+        if (!recipient || typeof recipient !== 'string') {
+            throw new Error('Invalid recipient. Please provide a valid recipient.');
+        }
+
+        // const newTransaction = dclCoin.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
+        const newTransaction = { amount, sender, recipient };
         dclCoin.addTransactionToPendingTransactions(newTransaction);
+
         //cycling through every node of the network and sending the new transaction to each nodes /transaction endpoint.
         const requestPromises = [];
         dclCoin.networkNodes.forEach(networkNodeUrl => {
