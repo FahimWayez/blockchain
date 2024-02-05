@@ -41,26 +41,32 @@ app.post('/transaction', function (req, res) {
 });
 
 app.post('/transaction/broadcast', function (req, res) {
-    const newTransaction = dclCoin.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
-    dclCoin.addTransactionToPendingTransactions(newTransaction);
-    //cycling through every node of the network and sending the new transaction to each nodes /transaction endpoint.
-    const requestPromises = [];
-    dclCoin.networkNodes.forEach(networkNodeUrl => {
-        const requestOptions = {
-            uri: networkNodeUrl + '/transaction',
-            method: 'POST',
-            body: newTransaction,
-            json: true
-        };
+    try {
+        const newTransaction = dclCoin.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
+        dclCoin.addTransactionToPendingTransactions(newTransaction);
+        //cycling through every node of the network and sending the new transaction to each nodes /transaction endpoint.
+        const requestPromises = [];
+        dclCoin.networkNodes.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + '/transaction',
+                method: 'POST',
+                body: newTransaction,
+                json: true
+            };
 
-        requestPromises.push(rp(requestOptions));
-    });
-
-    //after creating all the requests, passed to the array
-    Promise.all(requestPromises)
-        .then(data => {
-            res.json({ note: 'Transaction created and broadcast successfully.' });
+            requestPromises.push(rp(requestOptions));
         });
+
+        //after creating all the requests, passed to the array
+        Promise.all(requestPromises)
+            .then(data => {
+                res.json({ note: 'Transaction created and broadcast successfully.' });
+            });
+    }
+    catch (error) {
+        console.error('Error broadcasting transaction: ', error);
+        res.status(500).json({ error: 'Failed to broadcast transaction' });
+    };
 });
 
 //when hit, it will mine or create a new block for us
