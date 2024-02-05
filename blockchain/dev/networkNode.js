@@ -204,47 +204,53 @@ app.post('/register-nodes-bulk', function (req, res) {
 
 //when hit, it will check if the newly created networks has the updated data or not, if not, it will add
 app.get('/consensus', function (req, res) {
-    const requestPromises = [];
-    dclCoin.networkNodes.forEach(networkNodeUrl => {
-        const requestOptions = {
-            uri: networkNodeUrl + '/blockchain',
-            method: 'GET',
-            json: true
-        };
+    try {
+        const requestPromises = [];
+        dclCoin.networkNodes.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + '/blockchain',
+                method: 'GET',
+                json: true
+            };
 
-        requestPromises.push(rp(requestOptions));
-    });
-
-    Promise.all(requestPromises)
-        .then(blockchains => {
-            const currentChainLength = dclCoin.chain.length;
-            let maxChainLength = currentChainLength;
-            let newLongestChain = null;
-            let newPendingTransactions = null;
-            blockchains.forEach(blockchain => {
-                if (blockchain.chain.length > maxChainLength) {
-                    maxChainLength = blockchain.chain.length;
-                    newLongestChain = blockchain.chain;
-                    newPendingTransactions = blockchain.pendingTransactions;
-                };
-            });
-
-            if (!newLongestChain || (newLongestChain && !dclCoin.chainIsValid(newLongestChain))) {
-                res.json({
-                    note: 'Current chain has not been replaced.',
-                    chain: dclCoin.chain
-                });
-            }
-            else { //if (newLongestChain && dclCoin.chainIsValid(newLongestChain))
-                dclCoin.chain = newLongestChain;
-                dclCoin.pendingTransactions = newPendingTransactions;
-
-                res.json({
-                    note: 'This chain has been replaced',
-                    chain: dclCoin.chain
-                });
-            }
+            requestPromises.push(rp(requestOptions));
         });
+
+        Promise.all(requestPromises)
+            .then(blockchains => {
+                const currentChainLength = dclCoin.chain.length;
+                let maxChainLength = currentChainLength;
+                let newLongestChain = null;
+                let newPendingTransactions = null;
+                blockchains.forEach(blockchain => {
+                    if (blockchain.chain.length > maxChainLength) {
+                        maxChainLength = blockchain.chain.length;
+                        newLongestChain = blockchain.chain;
+                        newPendingTransactions = blockchain.pendingTransactions;
+                    };
+                });
+
+                if (!newLongestChain || (newLongestChain && !dclCoin.chainIsValid(newLongestChain))) {
+                    res.json({
+                        note: 'Current chain has not been replaced.',
+                        chain: dclCoin.chain
+                    });
+                }
+                else { //if (newLongestChain && dclCoin.chainIsValid(newLongestChain))
+                    dclCoin.chain = newLongestChain;
+                    dclCoin.pendingTransactions = newPendingTransactions;
+
+                    res.json({
+                        note: 'This chain has been replaced',
+                        chain: dclCoin.chain
+                    });
+                }
+            });
+    }
+    catch (error) {
+        console.error('Error performing consensus operations: ', error);
+        res.status(500).json({ error: 'Failed to perform consensus' });
+    };
 });
 
 //search by block hash
