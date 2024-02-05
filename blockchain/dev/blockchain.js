@@ -88,15 +88,21 @@ Blockchain.prototype.hashBlock = function (previousBlockHash, currentBlockData, 
 
 //generating the specific nonce value
 Blockchain.prototype.proofOfWork = function (previousBlockHash, currentBlockData) {
-    let nonce = 0;
-    let hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
+    try {
+        let nonce = 0;
+        let hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
 
-    while (hash.substring(0, 4) !== '0000') {
-        nonce++;
-        hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
+        while (hash.substring(0, 4) !== '0000') {
+            nonce++;
+            hash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
+        }
+
+        return nonce;
     }
-
-    return nonce;
+    catch (error) {
+        console.error('Error in proof of work: ', error);
+        throw new Error('Failed to perform proof of work.');
+    };
 }
 
 //validating if a chain is legitimate or not
