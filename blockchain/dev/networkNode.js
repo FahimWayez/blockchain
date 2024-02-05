@@ -270,13 +270,19 @@ app.get('/block/:blockHash', function (req, res) {
 
 //search by transaction ID
 app.get('/transaction/:transactionId', function (req, res) {
-    const transactionId = req.params.transactionId;
-    const transactionData = dclCoin.getTransaction(transactionId);
+    try {
+        const transactionId = req.params.transactionId;
+        const transactionData = dclCoin.getTransaction(transactionId);
 
-    res.json({
-        transaction: transactionData.transaction,
-        block: transactionData.block
-    });
+        res.json({
+            transaction: transactionData.transaction,
+            block: transactionData.block
+        });
+    }
+    catch (error) {
+        console.error('Error finding transaction with transaction ID: ', error);
+        res.status(500).json({ error: 'Failed to find transaction with transaction ID' });
+    };
 });
 
 //search by address
