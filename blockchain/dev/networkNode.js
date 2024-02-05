@@ -191,14 +191,20 @@ app.post('/register-node', function (req, res) {
 
 //when hit, it will register multiple nodes at once
 app.post('/register-nodes-bulk', function (req, res) {
-    const allNetworkNodes = req.body.allNetworkNodes;
-    allNetworkNodes.forEach(networkNodeUrl => {
-        const nodeNotAlreadyPresent = dclCoin.networkNodes.indexOf(networkNodeUrl) == -1;
-        const notCurrentNode = dclCoin.currentNodeUrl !== networkNodeUrl;
-        if (nodeNotAlreadyPresent && notCurrentNode) dclCoin.networkNodes.push(networkNodeUrl);
-    });
+    try {
+        const allNetworkNodes = req.body.allNetworkNodes;
+        allNetworkNodes.forEach(networkNodeUrl => {
+            const nodeNotAlreadyPresent = dclCoin.networkNodes.indexOf(networkNodeUrl) == -1;
+            const notCurrentNode = dclCoin.currentNodeUrl !== networkNodeUrl;
+            if (nodeNotAlreadyPresent && notCurrentNode) dclCoin.networkNodes.push(networkNodeUrl);
+        });
 
-    res.json({ note: 'Bulk registration successful.' });
+        res.json({ note: 'Bulk registration successful.' });
+    }
+    catch (error) {
+        console.error('Error registering nodes with bulk: ', error);
+        res.status(500).json({ note: 'Failed to register nodes with bulk' });
+    };
 });
 
 
