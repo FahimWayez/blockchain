@@ -136,12 +136,18 @@ Blockchain.prototype.chainIsValid = function (blockchain) {
 
 
 Blockchain.prototype.getBlock = function (blockHash) {
-    let correctBlock = null;
-    this.chain.forEach(block => {
-        if (block.hash === blockHash) correctBlock = block;
-    });
+    try {
+        let correctBlock = null;
+        this.chain.forEach(block => {
+            if (block.hash === blockHash) correctBlock = block;
+        });
 
-    return correctBlock;
+        return correctBlock;
+    }
+    catch (error) {
+        console.error('Error getting block: ', error);
+        throw new Error('Failed to get block');
+    };
 };
 
 
