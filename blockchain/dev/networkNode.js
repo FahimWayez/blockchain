@@ -124,24 +124,30 @@ app.get('/mine', function (req, res) {
 });
 
 app.post('/receive-new-block', function (req, res) {
-    const newBlock = req.body.newBlock;
-    const lastBlock = dclCoin.getLastBlock();
-    const correctHash = lastBlock.hash === newBlock.previousBlockHash;
-    const correctIndex = lastBlock['index'] + 1 === newBlock['index'];
+    try {
+        const newBlock = req.body.newBlock;
+        const lastBlock = dclCoin.getLastBlock();
+        const correctHash = lastBlock.hash === newBlock.previousBlockHash;
+        const correctIndex = lastBlock['index'] + 1 === newBlock['index'];
 
-    if (correctHash && correctIndex) {
-        dclCoin.chain.push(newBlock);
-        dclCoin.pendingTransactions = [];
-        res.json({
-            note: 'New block received and accepted.',
-            newBlock: newBlock
-        });
-    } else {
-        res.json({
-            note: 'New block rejected.',
-            newBlock: newBlock
-        });
+        if (correctHash && correctIndex) {
+            dclCoin.chain.push(newBlock);
+            dclCoin.pendingTransactions = [];
+            res.json({
+                note: 'New block received and accepted.',
+                newBlock: newBlock
+            });
+        } else {
+            res.json({
+                note: 'New block rejected.',
+                newBlock: newBlock
+            });
+        }
     }
+    catch (error) {
+        console.error('Error receiving new block: ', error);
+        res.status(500).json({ note: 'Failed to receive new block.' });
+    };
 });
 
 //when hit, it will register and broadcast a node to the network
