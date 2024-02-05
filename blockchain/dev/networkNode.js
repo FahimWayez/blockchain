@@ -22,16 +22,22 @@ app.get('/blockchain', function (req, res) {
 
 //when hit, it will create a new transaction in the blockchain
 app.post('/transaction', function (req, res) {
-    // console.log(req.body);
-    // res.send(`The amount of the transaction is ${req.body.amount} dlcCoin.`);
+    try {
+        // console.log(req.body);
+        // res.send(`The amount of the transaction is ${req.body.amount} dlcCoin.`);
 
-    // const blockIndex = dclCoin.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
-    // res.json({ note: `Transaction will be added in block ${blockIndex}.` });
+        // const blockIndex = dclCoin.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
+        // res.json({ note: `Transaction will be added in block ${blockIndex}.` });
 
-    const newTransaction = req.body;
-    const blockIndex = dclCoin.addTransactionToPendingTransactions(newTransaction);
-    res.json({ note: `Transaction will be added in block ${blockIndex}.` });
+        const newTransaction = req.body;
+        const blockIndex = dclCoin.addTransactionToPendingTransactions(newTransaction);
+        res.json({ note: `Transaction will be added in block ${blockIndex}.` });
 
+    }
+    catch (error) {
+        console.error('Error processing transaction: ', error);
+        res.status(500).json({ error: 'Failed to process transaction' });
+    };
 });
 
 app.post('/transaction/broadcast', function (req, res) {
