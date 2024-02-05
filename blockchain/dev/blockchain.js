@@ -16,19 +16,25 @@ function Blockchain() {
 
 //creating new block
 Blockchain.prototype.createNewBlock = function (nonce, previousBlockHash, hash) {
-    const newBlock = {
-        index: this.chain.length + 1,
-        timeStamp: Date.now(),
-        transactions: this.pendingTransactions,
-        nonce: nonce,
-        hash: hash,
-        previousBlockHash: previousBlockHash,
+    try {
+        const newBlock = {
+            index: this.chain.length + 1,
+            timeStamp: Date.now(),
+            transactions: this.pendingTransactions,
+            nonce: nonce,
+            hash: hash,
+            previousBlockHash: previousBlockHash,
+        };
+
+        this.pendingTransactions = [];
+        this.chain.push(newBlock);
+
+        return newBlock;
+    }
+    catch (error) {
+        console.error('Error creating a new block: ', error);
+        throw new Error('Failed to create a new block.');
     };
-
-    this.pendingTransactions = [];
-    this.chain.push(newBlock);
-
-    return newBlock;
 }
 
 
@@ -36,8 +42,6 @@ Blockchain.prototype.createNewBlock = function (nonce, previousBlockHash, hash) 
 Blockchain.prototype.getLastBlock = function () {
     return this.chain[this.chain.length - 1];
 }
-
-
 
 //creating new transaction
 Blockchain.prototype.createNewTransaction = function (amount, sender, recipient) {
