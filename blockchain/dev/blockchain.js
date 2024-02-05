@@ -45,17 +45,23 @@ Blockchain.prototype.getLastBlock = function () {
 
 //creating new transaction
 Blockchain.prototype.createNewTransaction = function (amount, sender, recipient) {
-    const newTransaction = {
-        amount: amount,
-        sender: sender,
-        recipient: recipient,
-        transactionId: uuid().split('-').join('')
+    try {
+        const newTransaction = {
+            amount: amount,
+            sender: sender,
+            recipient: recipient,
+            transactionId: uuid().split('-').join('')
+        };
+
+        // this.pendingTransactions.push(newTransaction);
+        // return this.getLastBlock()['index'] + 1;
+
+        return newTransaction;
+    }
+    catch (error) {
+        console.error('Error creating a new transaction: ', error);
+        throw new Error('Failed to create a new transaction.');
     };
-
-    // this.pendingTransactions.push(newTransaction);
-    // return this.getLastBlock()['index'] + 1;
-
-    return newTransaction;
 }
 
 
