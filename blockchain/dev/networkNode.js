@@ -71,50 +71,56 @@ app.post('/transaction/broadcast', function (req, res) {
 
 //when hit, it will mine or create a new block for us
 app.get('/mine', function (req, res) {
-    const lastBlock = dclCoin.getLastBlock();
-    const previousBlockHash = lastBlock['hash'];
-    const currentBlockData = {
-        transactions: dclCoin.pendingTransactions,
-        index: lastBlock['index'] + 1
-    };
-    const nonce = dclCoin.proofOfWork(previousBlockHash, currentBlockData);
-    const blockHash = dclCoin.hashBlock(previousBlockHash, currentBlockData, nonce);
-    const newBlock = dclCoin.createNewBlock(nonce, previousBlockHash, blockHash);
-
-    const requestPromises = [];
-    dclCoin.networkNodes.forEach(networkNodeUrl => {
-        const requestOptions = {
-            uri: networkNodeUrl + '/receive-new-block',
-            method: 'POST',
-            body: { newBlock: newBlock },
-            json: true
+    try {
+        const lastBlock = dclCoin.getLastBlock();
+        const previousBlockHash = lastBlock['hash'];
+        const currentBlockData = {
+            transactions: dclCoin.pendingTransactions,
+            index: lastBlock['index'] + 1
         };
+        const nonce = dclCoin.proofOfWork(previousBlockHash, currentBlockData);
+        const blockHash = dclCoin.hashBlock(previousBlockHash, currentBlockData, nonce);
+        const newBlock = dclCoin.createNewBlock(nonce, previousBlockHash, blockHash);
 
-        requestPromises.push(rp(requestOptions));
-    });
-
-    //broadcasting the miner rewards to the network
-    Promise.all(requestPromises)
-        .then(data => {
+        const requestPromises = [];
+        dclCoin.networkNodes.forEach(networkNodeUrl => {
             const requestOptions = {
-                uri: dclCoin.currentNodeUrl + '/transaction/broadcast',
+                uri: networkNodeUrl + '/receive-new-block',
                 method: 'POST',
-                body: {
-                    amount: 6.25,
-                    sender: "Fahim",
-                    recipient: nodeAddress
-                },
+                body: { newBlock: newBlock },
                 json: true
             };
 
-            return rp(requestOptions);
-        })
-        .then(data => {
-            res.json({
-                note: "New block mined & broadcast successfully",
-                block: newBlock
-            });
+            requestPromises.push(rp(requestOptions));
         });
+
+        //broadcasting the miner rewards to the network
+        Promise.all(requestPromises)
+            .then(data => {
+                const requestOptions = {
+                    uri: dclCoin.currentNodeUrl + '/transaction/broadcast',
+                    method: 'POST',
+                    body: {
+                        amount: 6.25,
+                        sender: "Fahim",
+                        recipient: nodeAddress
+                    },
+                    json: true
+                };
+
+                return rp(requestOptions);
+            })
+            .then(data => {
+                res.json({
+                    note: "New block mined & broadcast successfully",
+                    block: newBlock
+                });
+            });
+    }
+    catch (error) {
+        console.error('Error mining block: ', error);
+        res.status(500).json({ error: 'Failed to mine block' });
+    };
 });
 
 app.post('/receive-new-block', function (req, res) {
