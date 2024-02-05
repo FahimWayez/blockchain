@@ -28,8 +28,21 @@ app.post('/transaction', function (req, res) {
 
         // const blockIndex = dclCoin.createNewTransaction(req.body.amount, req.body.sender, req.body.recipient);
         // res.json({ note: `Transaction will be added in block ${blockIndex}.` });
+        const { amount, sender, recipient } = req.body;
 
-        const newTransaction = req.body;
+        if (!amount || isNaN(amount) || amount <= 0) {
+            throw new Error('Invalid amount. Please provide a positive numeric value.');
+        }
+
+        if (!sender || typeof sender !== 'string') {
+            throw new Error('Invalid sender. Please provide a valid sender.');
+        }
+
+        if (!recipient || typeof recipient !== 'string') {
+            throw new Error('Invalid recipient. Please provide a valid recipient.');
+        }
+
+        const newTransaction = { amount, sender, recipient };
         const blockIndex = dclCoin.addTransactionToPendingTransactions(newTransaction);
         res.json({ note: `Transaction will be added in block ${blockIndex}.` });
 
