@@ -146,36 +146,41 @@ app.post('/receive-new-block', function (req, res) {
 
 //when hit, it will register and broadcast a node to the network
 app.post('/register-and-broadcast-node', function (req, res) {
-    const newNodeUrl = req.body.newNodeUrl;
-    if (dclCoin.networkNodes.indexOf(newNodeUrl) == -1) dclCoin.networkNodes.push(newNodeUrl);
+    try {
+        const newNodeUrl = req.body.newNodeUrl;
+        if (dclCoin.networkNodes.indexOf(newNodeUrl) == -1) dclCoin.networkNodes.push(newNodeUrl);
 
-    const regNodesPromises = [];
-    dclCoin.networkNodes.forEach(networkNodeUrl => {
-        const requestOptions = {
-            uri: networkNodeUrl + '/register-node',
-            method: 'POST',
-            body: { newNodeUrl: newNodeUrl },
-            json: true
-        };
-
-        regNodesPromises.push(rp(requestOptions));
-    });
-
-    Promise.all(regNodesPromises)
-        .then(data => {
-            const bulkRegisterOptions = {
-                uri: newNodeUrl + '/register-nodes-bulk',
+        const regNodesPromises = [];
+        dclCoin.networkNodes.forEach(networkNodeUrl => {
+            const requestOptions = {
+                uri: networkNodeUrl + '/register-node',
                 method: 'POST',
-                body: { allNetworkNodes: [...dclCoin.networkNodes, dclCoin.currentNodeUrl] },
+                body: { newNodeUrl: newNodeUrl },
                 json: true
             };
 
-            return rp(bulkRegisterOptions);
-        })
-        .then(data => {
-            res.json({ note: 'New node registered with network successfully.' });
+            regNodesPromises.push(rp(requestOptions));
         });
 
+        Promise.all(regNodesPromises)
+            .then(data => {
+                const bulkRegisterOptions = {
+                    uri: newNodeUrl + '/register-nodes-bulk',
+                    method: 'POST',
+                    body: { allNetworkNodes: [...dclCoin.networkNodes, dclCoin.currentNodeUrl] },
+                    json: true
+                };
+
+                return rp(bulkRegisterOptions);
+            })
+            .then(data => {
+                res.json({ note: 'New node registered with network successfully.' });
+            });
+    }
+    catch (error) {
+        console.error('Error registering and broadcasting nodes: ', error);
+        res.status(500).json({ note: 'Failed to register and broadcast nodes.' });
+    };
 });
 
 
