@@ -88,7 +88,7 @@ app.get('/mine', function (req, res) {
                 uri: dclCoin.currentNodeUrl + '/transaction/broadcast',
                 method: 'POST',
                 body: {
-                    amount: 12.5,
+                    amount: 6.25,
                     sender: "00",
                     recipient: nodeAddress
                 },
